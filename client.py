@@ -143,6 +143,7 @@ class Game:
                 winner = self.board[state[0][0]][state[0][1]]
                 self.show_winner_message(winner)  # Call new function to display message
                 self.chat_object.write(f"WINNER:{winner}")  # Gửi thông điệp chiến thắng
+                pygame.time.wait(1000)
                 self.reset_game()
                 break
 
