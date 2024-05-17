@@ -4,7 +4,7 @@ import sys
 
 
 # Server IP and port
-IP = "192.168.1.2"
+IP = "localhost"
 PORT = 5555
 
 turn = "X"
