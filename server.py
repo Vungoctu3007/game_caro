@@ -9,6 +9,7 @@ PORT = 5555
 
 turn = "X"
 
+
 # Socket type and options
 server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -31,7 +32,7 @@ def broadcast(message, client_socket):
             client.send(message.encode("utf-8"))
 
 
-# Function to be called per client
+# Trong phương thức handle
 def handle(client_socket):
     while True:
         message = client_socket.recv(1024).decode("utf-8")
@@ -42,9 +43,10 @@ def handle(client_socket):
             clients.pop(client_socket)
             print(clients)
             sys.exit()
+        elif "WINNER:" in message:  # Kiểm tra nếu là thông điệp chiến thắng
+            broadcast(message, client_socket)  # Gửi lại thông điệp này cho tất cả các client
         else:
             broadcast(message, client_socket)
-
 
 # Receiving / Listening Function
 def receive():

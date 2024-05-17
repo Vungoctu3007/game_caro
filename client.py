@@ -15,6 +15,7 @@ CHAT_FONT_SIZE = 20
 CHAT_BOX_HEIGHT = 200
 
 # Colors
+GREEN = (5, 192, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -32,7 +33,6 @@ CHAT_ICON = pygame.image.load("chat_icon.png")
 
 class SocketChat:
     def __init__(self):
-        self.nickname = "Hossam"
         self.IP = "192.168.1.2"
         self.PORT = 5555
         self.client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -69,6 +69,10 @@ class Game:
             message = self.chat_object.receive()
             if message.startswith("CHAT:"):
                 self.chat_messages.append(message[5:])
+            elif message.startswith("WINNER:"):
+                winner = message.split(":")[1]
+                self.show_winner_message(winner)
+                self.reset_game()
             else:
                 i, j = map(int, message.split(" "))
                 self.board[i][j] = self.turn
@@ -90,33 +94,33 @@ class Game:
 
     def draw_chat_box(self):
         chat_bg_rect = pygame.Rect(0, WIDTH, WIDTH, CHAT_BOX_HEIGHT)
-        pygame.draw.rect(self.screen, GRAY, chat_bg_rect)
+        pygame.draw.rect(self.screen, WHITE, chat_bg_rect)
 
-        # Draw chat input background
-        pygame.draw.rect(self.screen, CHAT_BG_COLOR, (50, HEIGHT - 80, 400, 40))  # Change background color
+        # Draw chat input background with border
+        chat_input_bg_rect = pygame.Rect(WIDTH // 2 - 200, HEIGHT - 90, 400, 40)
+        pygame.draw.rect(self.screen, GREEN, chat_input_bg_rect)  # Background
 
         # Draw chat input text
         chat_input_text = "".join(self.chat_input[-31:])
         chat_input_surf = CHAT_FONT.render(chat_input_text if chat_input_text else "Chat here", True, WHITE)
-        self.screen.blit(chat_input_surf, (55, HEIGHT - 80))
+        input_text_rect = chat_input_surf.get_rect(center=(WIDTH // 2, HEIGHT - 70))
+        self.screen.blit(chat_input_surf, input_text_rect)
 
-        # Draw Send button
-        send_button_surf = CHAT_FONT.render("Send", True, WHITE)
-        send_button_rect = send_button_surf.get_rect(topleft=(455, HEIGHT - 80))
-        self.screen.blit(send_button_surf, send_button_rect)
-
-        # Hiển thị nội dung của ô chat box
-        chat_surface = pygame.Surface((WIDTH, CHAT_BOX_HEIGHT - 40))
-        chat_surface.fill(CHAT_BG_COLOR)
+        # Hiển thị nội dung của ô chat box với viền
+        chat_surface = pygame.Surface((WIDTH - 20, CHAT_BOX_HEIGHT - 40))
+        chat_surface.fill(WHITE)
+        pygame.draw.rect(chat_surface, BLACK, chat_surface.get_rect(), 2)  # Border
         y_offset = CHAT_BOX_HEIGHT - 60 + self.chat_scroll_y
         for message in reversed(self.chat_messages):
-            message_surface = CHAT_FONT.render(message, True, WHITE)
+            message_surface = CHAT_FONT.render(message, True, BLACK)
             chat_surface.blit(message_surface, (10, y_offset))
             y_offset -= CHAT_FONT_SIZE + 5
         self.screen.blit(chat_surface, (10, HEIGHT - CHAT_BOX_HEIGHT - 60))
 
+
     def draw_player_info(self):
-        player_info_surface = CHAT_FONT.render(f"Player: {self.player} Turn: {self.turn}", True, WHITE)
+        player_color = RED if self.player == "X" else BLUE
+        player_info_surface = CHAT_FONT.render(f"Player: {self.player} Turn: {self.turn}", True, player_color)
         self.screen.blit(player_info_surface, (10, WIDTH + 5))
 
     def toggle_turn(self):
@@ -138,17 +142,20 @@ class Game:
                 self.board[state[0][0]][state[0][1]] == self.board[state[1][0]][state[1][1]] == self.board[state[2][0]][state[2][1]]:
                 winner = self.board[state[0][0]][state[0][1]]
                 self.show_winner_message(winner)  # Call new function to display message
+                self.chat_object.write(f"WINNER:{winner}")  # Gửi thông điệp chiến thắng
                 self.reset_game()
                 break
 
     def reset_game(self):
         self.board = [["" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
         self.game_over = False  # Reset game over state
+
     def show_winner_message(self, winner):
         # Create a font for the winner message
         winner_font = pygame.font.SysFont('arial', 80)
 
         # Create the winner message surface
+        winner_text = winner_font.render
         winner_text = winner_font.render(f"{winner} Wins!", True, RED if winner == "X" else BLUE)
         winner_text_rect = winner_text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
@@ -158,7 +165,7 @@ class Game:
 
         # Wait for some time before resetting the game (optional)
         pygame.time.wait(3000)  # Wait for 3 seconds
-        
+
     def handle_event(self, event):
         if event.type == pygame.QUIT:
             self.running = False
@@ -211,4 +218,3 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.run()
-
