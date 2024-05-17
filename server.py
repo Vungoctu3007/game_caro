@@ -19,7 +19,7 @@ server_socket.listen()
 # dictionary of client sockets and their nicknames
 clients = {}
 
-# debuggin
+# debugging
 print(f"Listening for connections on {IP}:{PORT}...")
 
 
@@ -36,13 +36,14 @@ def handle(client_socket):
     while True:
         message = client_socket.recv(1024).decode("utf-8")
         print(message)
-        broadcast(message, client_socket)
         if "!exit" in message:
             client_socket.close()
             broadcast("{} left!".format(clients[client_socket]), client_socket)
             clients.pop(client_socket)
             print(clients)
             sys.exit()
+        else:
+            broadcast(message, client_socket)
 
 
 # Receiving / Listening Function
@@ -58,9 +59,6 @@ def receive():
             turn = "O"
         elif turn == "O":
             turn = "X"
-        # # Request And Store Nickname
-        # client_socket.send("/id".encode("utf-8"))
-        # nickname = client_socket.recv(1024).decode("utf-8")
         # Add client info to the dictionary
         clients.update({client_socket: nickname})
         # Start Handling Thread For Client
