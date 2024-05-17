@@ -7,7 +7,7 @@ import pygame
 pygame.init()
 
 # Screen dimensions
-WIDTH, HEIGHT = 600, 900
+WIDTH, HEIGHT = 600, 800
 GRID_SIZE = 3
 CELL_SIZE = WIDTH // GRID_SIZE
 FONT_SIZE = 60
@@ -33,7 +33,7 @@ CHAT_ICON = pygame.image.load("chat_icon.png")
 
 class SocketChat:
     def __init__(self):
-        self.IP = "192.168.1.2"
+        self.IP = "localhost"
         self.PORT = 5555
         self.client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
