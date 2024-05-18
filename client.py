@@ -31,10 +31,15 @@ class SocketChat:
         self.PORT = 5555
         self.client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
+    #receive data from server
     def receive(self):
-        message = self.client_socket.recv(1024).decode("utf-8")
-        return message
-
+        try:
+            message = self.client_socket.recv(1024).decode("utf-8")
+            return message
+        except OSError as e:
+            print("Error receiving data:", e)
+            return None
+    #send data
     def write(self, msg: str):
         self.client_socket.send(msg.encode("utf-8"))
 
@@ -56,12 +61,12 @@ class Game:
         self.running = True
         self.show_chat = True
         self.game_over = False
-
+        #start new thread to receive messages form the server
         threading.Thread(target=self.handle_incoming_messages).start()
 
     def handle_incoming_messages(self):
         while self.running:
-            message = self.chat_object.receive()
+            message = self.chat_object.receive() # receive message from server
             if message.startswith("CHAT:"):
                 self.chat_messages.append(message[5:])
             elif message.startswith("WINNER:"):
@@ -119,6 +124,13 @@ class Game:
         player_info_surface = CHAT_FONT.render(f"Player: {self.player} ({self.name}) Turn: {self.turn}", True, player_color)
         self.screen.blit(player_info_surface, (10, WIDTH + 5))
 
+        # Vẽ nút choi lại
+        restart_button_rect = pygame.Rect(WIDTH - 110, WIDTH + 5, 100, 40)
+        pygame.draw.rect(self.screen, GREEN, restart_button_rect)
+        restart_text = CHAT_FONT.render("Restart", True, WHITE)
+        text_rect = restart_text.get_rect(center=restart_button_rect.center)
+        self.screen.blit(restart_text, text_rect)
+
     def toggle_turn(self):
         self.turn = "O" if self.turn == "X" else "X"
 
@@ -172,6 +184,8 @@ class Game:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if not self.game_over:
                 x, y = event.pos
+                if WIDTH - 110 <= x <= WIDTH - 10 and WIDTH + 5 <= y <= WIDTH + 45:
+                    self.reset_game()  # Thiết lập lại trò chơi khi nhấn nút choi lại
                 if y < WIDTH:
                     i, j = y // CELL_SIZE, x // CELL_SIZE
                     if self.board[i][j] == "" and self.player == self.turn:
@@ -213,9 +227,4 @@ class Game:
             pygame.display.flip()
         pygame.quit()
         self.chat_object.client_socket.close()
-
-if __name__ == "__main__":
-    name = input("Enter your name: ")
-    game = Game(name)
-    game.run()
 
