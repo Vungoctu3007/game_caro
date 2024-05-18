@@ -7,21 +7,19 @@ import pygame
 pygame.init()
 
 # Screen dimensions
-WIDTH, HEIGHT = 600, 900
-GRID_SIZE = 3
+WIDTH, HEIGHT = 500, 900
+GRID_SIZE = 10
 CELL_SIZE = WIDTH // GRID_SIZE
 FONT_SIZE = 60
 CHAT_FONT_SIZE = 20
-CHAT_BOX_HEIGHT = 200
+CHAT_BOX_HEIGHT = 300  # Adjusted height for chat box
 
 # Colors
 GREEN = (1, 101, 179)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-CHAT_BG_COLOR = (200, 200, 200)
 
 # Fonts
 FONT = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)
@@ -86,8 +84,13 @@ class Game:
         for i in range(GRID_SIZE):
             for j in range(GRID_SIZE):
                 if self.board[i][j] != "":
-                    text = FONT.render(self.board[i][j], True, RED if self.board[i][j] == "X" else BLUE)
-                    self.screen.blit(text, (j * CELL_SIZE + CELL_SIZE // 3, i * CELL_SIZE + CELL_SIZE // 4))
+                    if self.board[i][j] == "X":
+                        text = FONT.render("X", True, RED)
+                    else:
+                        text = FONT.render("O", True, BLUE)
+                    text_rect = text.get_rect(center=(j * CELL_SIZE + CELL_SIZE // 2, i * CELL_SIZE + CELL_SIZE // 2))
+                    self.screen.blit(text, text_rect)
+
 
     def draw_chat_box(self):
         chat_bg_rect = pygame.Rect(0, WIDTH, WIDTH, CHAT_BOX_HEIGHT)
@@ -120,26 +123,36 @@ class Game:
         self.turn = "O" if self.turn == "X" else "X"
 
     def check_winner(self):
-        winning_states = [
-            [(0, 0), (0, 1), (0, 2)],
-            [(1, 0), (1, 1), (1, 2)],
-            [(2, 0), (2, 1), (2, 2)],
-            [(0, 0), (1, 0), (2, 0)],
-            [(0, 1), (1, 1), (2, 1)],
-            [(0, 2), (1, 2), (2, 2)],
-            [(0, 0), (1, 1), (2, 2)],
-            [(0, 2), (1, 1), (2, 0)],
-        ]
+        winning_states = []
+        # Horizontal winning states
+        for i in range(GRID_SIZE):
+            for j in range(GRID_SIZE - 4):
+                winning_states.append([(i, j + k) for k in range(5)])
+
+        # Vertical winning states
+        for i in range(GRID_SIZE - 4):
+            for j in range(GRID_SIZE):
+                winning_states.append([(i + k, j) for k in range(5)])
+
+        # Diagonal winning states (top-left to bottom-right)
+        for i in range(GRID_SIZE - 4):
+            for j in range(GRID_SIZE - 4):
+                winning_states.append([(i + k, j + k) for k in range(5)])
+
+        # Diagonal winning states (top-right to bottom-left)
+        for i in range(GRID_SIZE - 4):
+            for j in range(4, GRID_SIZE):
+                winning_states.append([(i + k, j - k) for k in range(5)])
+
         for state in winning_states:
-            if self.board[state[0][0]][state[0][1]] != "" and \
-                self.board[state[0][0]][state[0][1]] == self.board[state[1][0]][state[1][1]] == self.board[state[2][0]][state[2][1]]:
-                winner = self.board[state[0][0]][state[0][1]]
+            symbols = [self.board[i][j] for i, j in state]
+            if symbols[0] != "" and all(symbol == symbols[0] for symbol in symbols):
+                winner = symbols[0]
                 self.show_winner_message(winner)
                 self.chat_object.write(f"WINNER:{winner}")
                 pygame.time.wait(1000)
                 self.reset_game()
                 break
-
 
     def reset_game(self):
         self.board = [["" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
@@ -167,25 +180,25 @@ class Game:
                         self.toggle_turn()
                         self.check_winner()
                 elif pygame.Rect(0, WIDTH, WIDTH, CHAT_BOX_HEIGHT).collidepoint(event.pos):
-                    if 455 <= x <= 505 and HEIGHT - 50 <= y <= HEIGHT - 10:
+                    if 10 <= x <= WIDTH - 10 and HEIGHT - 90 <= y <= HEIGHT - 50:
+                        self.show_chat = True
+                    elif 455 <= x <= 505 and HEIGHT - 50 <= y <= HEIGHT - 10:
                         self.chat_object.write(f"CHAT:{self.name}: {''.join(self.chat_input)}")
                         self.chat_messages.append(f"Me: {''.join(self.chat_input)}")
                         self.chat_input = []
                         self.show_chat = True
-                    elif 10 <= x <= 50 and HEIGHT - 50 <= y <= HEIGHT - 10:
-                        self.show_chat = not self.show_chat
         elif event.type == pygame.KEYDOWN:
-            if not self.game_over:
+            if not self.game_over and self.show_chat:
                 if event.key == pygame.K_RETURN:
                     self.chat_object.write(f"CHAT:{self.name}: {''.join(self.chat_input)}")
                     self.chat_messages.append(f"Me: {''.join(self.chat_input)}")
                     self.chat_input = []
-                    self.show_chat = True
                 elif event.key == pygame.K_BACKSPACE:
                     if self.chat_input:
                         self.chat_input.pop()
                 else:
                     self.chat_input.append(event.unicode)
+
 
     def run(self):
         while self.running:
@@ -204,3 +217,5 @@ class Game:
 if __name__ == "__main__":
     name = input("Enter your name: ")
     game = Game(name)
+    game.run()
+
