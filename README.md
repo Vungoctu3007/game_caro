@@ -5,7 +5,7 @@
 * Step 2: install `pip install pygame`.
 * Step 3: Open project folder with vs code.
 * Step 4: Open terminal in vs code
-* Step 6: Type `python server.py` and `python client.py` to launch the game.
+* Step 6: Type `python server.py` and `python main.py` to launch the game.
 # Game footage
 * Giao diện vào game
 ![ngoaigame](https://github.com/Vungoctu3007/game_caro/assets/116452243/e26e9a63-5a93-48f6-b7ee-c85e00979f48)
