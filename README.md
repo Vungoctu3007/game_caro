@@ -7,7 +7,21 @@
 * Step 4: Open terminal in vs code
 * Step 6: Type `python server.py` and `python client.py` to launch the game.
 # Game footage
-![z5451286880166_e11ee0681f03717e5b153730329e8163](https://github.com/Vungoctu3007/game_caro/assets/118749801/90d8b068-0aa6-4672-88c7-0a5597cb3bff)
+* Giao diện vào game
+![ngoaigame](https://github.com/Vungoctu3007/game_caro/assets/116452243/e26e9a63-5a93-48f6-b7ee-c85e00979f48)
+
+
+* Giao diện trong game
+![tronggame](https://github.com/Vungoctu3007/game_caro/assets/116452243/f0648505-b322-4f46-8a0f-58bed590e365)
+
+
+* GIao diện khi chiến thắng
+
+![chienthang](https://github.com/Vungoctu3007/game_caro/assets/116452243/3758029a-246c-4900-8c0d-113f7612a484)
+
+
+
+![]()
 # Developers
 * [Ly Truong](https://github.com/truongly2003)
 * [Ngoc Tu](https://github.com/Vungoctu3007)
