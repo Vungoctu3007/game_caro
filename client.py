@@ -96,7 +96,6 @@ class Game:
                     text_rect = text.get_rect(center=(j * CELL_SIZE + CELL_SIZE // 2, i * CELL_SIZE + CELL_SIZE // 2))
                     self.screen.blit(text, text_rect)
 
-
     def draw_chat_box(self):
         chat_bg_rect = pygame.Rect(0, WIDTH, WIDTH, CHAT_BOX_HEIGHT)
         pygame.draw.rect(self.screen, WHITE, chat_bg_rect)
@@ -124,12 +123,9 @@ class Game:
         player_info_surface = CHAT_FONT.render(f"Player: {self.player} ({self.name}) Turn: {self.turn}", True, player_color)
         self.screen.blit(player_info_surface, (10, WIDTH + 5))
 
-        # Vẽ nút choi lại
-        restart_button_rect = pygame.Rect(WIDTH - 110, WIDTH + 5, 100, 40)
-        pygame.draw.rect(self.screen, GREEN, restart_button_rect)
+        pygame.draw.rect(self.screen, GREEN, (WIDTH - 110, WIDTH + 5, 100, 35))
         restart_text = CHAT_FONT.render("Restart", True, WHITE)
-        text_rect = restart_text.get_rect(center=restart_button_rect.center)
-        self.screen.blit(restart_text, text_rect)
+        self.screen.blit(restart_text, (WIDTH - 100, WIDTH + 8))
 
     def toggle_turn(self):
         self.turn = "O" if self.turn == "X" else "X"
